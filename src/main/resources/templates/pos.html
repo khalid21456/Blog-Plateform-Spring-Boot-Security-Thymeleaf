@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publier un Article - Mon Blog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Summernote Editor CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #212529;
+        }
+        .page-header {
+            background-color: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-outline-primary {
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .category-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        footer {
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 3rem 0 1rem;
+            margin-top: 2rem;
+        }
+        footer a {
+            color: #f8f9fa;
+            text-decoration: none;
+        }
+        footer a:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+        #editor {
+            min-height: 300px;
+        }
+        .preview-image {
+            max-height: 200px;
+            width: auto;
+        }
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">Mon Blog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Catégories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">À propos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a class="btn btn-outline-light me-2" th:href="@{/profile}">Mon Profil</a>
+                <a class="btn btn-primary" th:href="@{/SignOut}">Déconnexion</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Publier un Nouvel Article</h1>
+        <p class="lead">Partagez vos idées et votre expertise avec notre communauté</p>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="form-container">
+                <form id="post-form" method="post" action="/blog/addPostForm" th:object="${postDTO}">
+                    <!-- Titre -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Titre de l'article *</label>
+                        <input type="text" th:field="*{title}" class="form-control form-control-lg" id="post-title" placeholder="Entrez un titre accrocheur" required>
+                    </div>
+
+                    <!-- Sous-titre -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Sous-titre</label>
+                        <input type="text" class="form-control" id="post-subtitle" placeholder="Un bref résumé de votre article">
+                    </div>
+
+                    <!-- Image de couverture -->
+                    <div class="mb-4">
+                        <label for="cover-image" class="form-label fw-bold">Image de couverture *</label>
+                        <input class="form-control" type="file" id="cover-image" accept="image/*" required>
+                        <div class="form-text">Format recommandé: 1200x800px, max 2MB</div>
+                        <div class="mt-2 d-none" id="image-preview-container">
+                            <img src="" id="image-preview" class="preview-image rounded" alt="Aperçu de l'image">
+                        </div>
+                    </div>
+
+                    <!-- Catégories -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Catégories *</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Technologie" id="tech-category">
+                                    <label class="form-check-label" for="tech-category">Technologie</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Environnement" id="env-category">
+                                    <label class="form-check-label" for="env-category">Environnement</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Sante" id="health-category">
+                                    <label class="form-check-label" for="health-category">Santé</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Economie" id="eco-category">
+                                    <label class="form-check-label" for="eco-category">Économie</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Culture" id="culture-category">
+                                    <label class="form-check-label" for="culture-category">Culture</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Education" id="edu-category">
+                                    <label class="form-check-label" for="edu-category">Éducation</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Voyage" id="travel-category">
+                                    <label class="form-check-label" for="travel-category">Voyage</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Cuisine" id="food-category">
+                                    <label class="form-check-label" for="food-category">Cuisine</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input th:field="*{category}" class="form-check-input" type="radio" value="Autre" id="other-category">
+                                    <label class="form-check-label" for="other-category">Autre</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="mb-4">
+                        <label for="post-tags" class="form-label fw-bold">Tags</label>
+                        <input type="text" th:field="*{tags}" class="form-control" id="post-tags" placeholder="Séparez les tags par des virgules (ex: innovation, science, avenir)">
+                        <div class="form-text">Ajoutez jusqu'à 5 tags</div>
+                        <div class="mt-2" id="tags-preview">
+                            <!-- Les tags s'afficheront ici -->
+                        </div>
+                    </div>
+
+                    <!-- Contenu -->
+                    <div class="mb-4">
+                        <label for="editor" class="form-label fw-bold">Contenu de l'article *</label>
+                        <textarea id="editor" th:field="*{content}" class="form-control"></textarea>
+                    </div>
+
+                    <!-- Extrait -->
+                    <div class="mb-4">
+                        <label for="post-excerpt" class="form-label fw-bold">Extrait</label>
+                        <textarea class="form-control" th:field="*{extrait}" id="post-excerpt" rows="3" placeholder="Un court résumé qui apparaîtra sur la page d'accueil"></textarea>
+                        <div class="form-text">Maximum 200 caractères</div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Options</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="" id="comments-allowed" checked>
+                            <label class="form-check-label" for="comments-allowed">
+                                Autoriser les commentaires
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="" id="featured-post">
+                            <label class="form-check-label" for="featured-post">
+                                Marquer comme article à la une
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Statut -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Statut</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="post-status" id="draft-status" checked>
+                            <label class="form-check-label" for="draft-status">
+                                Brouillon
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="post-status" id="schedule-status">
+                            <label class="form-check-label" for="schedule-status">
+                                Planifier la publication
+                            </label>
+                        </div>
+                        <div class="mt-2 d-none" id="schedule-container">
+                            <input type="datetime-local" class="form-control" id="schedule-date">
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary btn-lg">Annuler</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Publier l'article</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="form-container">
+                <h4 class="mb-3">Conseils pour la rédaction</h4>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item bg-transparent ps-0"><i class="fas fa-check-circle text-success me-2"></i> Choisissez un titre accrocheur</li>
+                    <li class="list-group-item bg-transparent ps-0"><i class="fas fa-check-circle text-success me-2"></i> Structurez votre article avec des sous-titres</li>
+                    <li class="list-group-item bg-transparent ps-0"><i class="fas fa-check-circle text-success me-2"></i> Utilisez des images pertinentes</li>
+                    <li class="list-group-item bg-transparent ps-0"><i class="fas fa-check-circle text-success me-2"></i> Respectez les règles de grammaire et d'orthographe</li>
+                    <li class="list-group-item bg-transparent ps-0"><i class="fas fa-check-circle text-success me-2"></i> Ajoutez des tags pour améliorer la visibilité</li>
+                </ul>
+
+                <h4 class="mb-3">Aperçu des catégories</h4>
+                <div class="mb-4">
+                    <span class="category-badge">Technologie</span>
+                    <span class="category-badge">Environnement</span>
+                    <span class="category-badge">Santé</span>
+                    <span class="category-badge">Économie</span>
+                    <span class="category-badge">Culture</span>
+                    <span class="category-badge">Éducation</span>
+                    <span class="category-badge">Voyage</span>
+                    <span class="category-badge">Cuisine</span>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <h5><i class="fas fa-info-circle me-2"></i> Bon à savoir</h5>
+                    <p class="mb-0">Tous les articles sont soumis à une modération avant publication. Assurez-vous de respecter nos <a href="#" class="alert-link">conditions d'utilisation</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h3>Mon Blog</h3>
+                <p>Partage de pensées, d'idées et d'analyses sur des sujets qui importent.</p>
+            </div>
+            <div class="col-lg-2 mb-4 mb-lg-0">
+                <h5>Liens rapides</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Accueil</a></li>
+                    <li><a href="#">À propos</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4 mb-lg-0">
+                <h5>Catégories populaires</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Technologie</a></li>
+                    <li><a href="#">Environnement</a></li>
+                    <li><a href="#">Santé</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <h5>Contact</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> contact@monblog.com</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="bg-light">
+        <div class="row">
+            <div class="col text-center">
+                <p>© 2025 Mon Blog. Tous droits réservés.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery (necessary for Summernote) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize editor
+        $('#editor').summernote({
+            placeholder: 'Rédigez votre article ici...',
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'italic', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        // Handle image preview
+        $('#cover-image').change(function() {
+            const file = this.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    $('#image-preview').attr('src', event.target.result);
+                    $('#image-preview-container').removeClass('d-none');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle schedule option
+        $('input[name="post-status"]').change(function() {
+            if ($('#schedule-status').is(':checked')) {
+                $('#schedule-container').removeClass('d-none');
+            } else {
+                $('#schedule-container').addClass('d-none');
+            }
+        });
+
+        // Handle tags display
+        $('#post-tags').on('input', function() {
+            const tagsInput = $(this).val();
+            if (tagsInput) {
+                const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+                let tagsHtml = '';
+                tags.forEach(tag => {
+                    if (tag) {
+                        tagsHtml += `<span class="category-badge">${tag}</span>`;
+                    }
+                });
+                $('#tags-preview').html(tagsHtml);
+            } else {
+                $('#tags-preview').html('');
+            }
+        });
+
+        // Save draft button
+        $('#save-draft').click(function() {
+            // Here you would handle saving the draft
+            alert('Brouillon enregistré!');
+        });
+    });
+</script>
+
+</body>
+</html>

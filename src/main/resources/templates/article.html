@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de l'Article</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .article-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .article-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .article-title {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 30px;
+            line-height: 1.8;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+        }
+
+        .article-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .article-actions {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .social-share {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eee;
+            border-radius: 50%;
+            color: #555;
+            text-decoration: none;
+        }
+
+        .related-articles {
+            margin-top: 30px;
+        }
+
+        .related-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card-excerpt {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        /* Styles pour les commentaires */
+        .comments-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .comments-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .comment-count {
+            background-color: #3498db;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .comment-form {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment {
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .comment-date {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .comment-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .comment-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .comment-actions button:hover {
+            color: #3498db;
+        }
+
+        .replies {
+            margin-left: 30px;
+            margin-top: 15px;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
+
+        .load-more {
+            background-color: transparent;
+            border: 1px solid #3498db;
+            color: #3498db;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .load-more:hover {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Mon Blog</h1>
+</header>
+
+<div class="container">
+    <div class="article-container">
+        <div class="article-header">
+            <h1 th:text="${article.title}"></h1>
+            <div class="article-meta">
+                <span th:text="'Publié le '+${article.datePub}"></span>
+                <span th:text="'Par '+${article.user.name}+' '+${article.user.lname}"></span>
+                <span th:text="'Catégorie: '+${article.category.name}"></span>
+            </div>
+        </div>
+
+        <img th:src="@{${article.image}}" alt="Image d'illustration responsive design" class="article-image">
+
+        <div class="article-content">
+            <p th:utext="${article.content}"></p>
+            <div  style="display:flex">
+                <div class="article-tags" th:each="tag : ${article.tags}" style="margin-right:5px">
+                    <span class="tag" th:text="${tag.tagName}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="article-actions">
+            <div class="social-share">
+                <a href="#" class="social-icon">f</a>
+                <a href="#" class="social-icon">t</a>
+                <a href="#" class="social-icon">in</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section de commentaires -->
+    <div th:unless="${session.nom == null}" class="comments-section" id="comments">
+        <h2 class="comments-title">
+            Commentaires
+            <span class="comment-count">12</span>
+        </h2>
+
+        <!-- Formulaire d'ajout de commentaire -->
+        <div class="comment-form">
+            <h3>Ajouter un commentaire</h3>
+            <form id="add-comment-form" th:action="@{/commenter}" th:object="${commentaire}" method="get">
+                <div class="form-group">
+                    <textarea id="comment-content" th:field="*{content}" class="form-control" placeholder="Votre commentaire..." required></textarea>
+                </div>
+                <button type="submit" class="button">Publier le commentaire</button>
+            </form>
+        </div>
+
+        <!-- Liste des commentaires -->
+        <div class="comments-list">
+            <div class="comment" th:each="com : ${comments}">
+                <div class="comment-header">
+                    <span th:text="${com.user_comment.name}+' '+${com.user_comment.lname}" class="comment-author"></span>
+                    <span class="comment-date">16 avril 2025, 09:12</span>
+                </div>
+                <div class="comment-content">
+                    <p th:text="${com.content}"></p>
+                </div>
+                <div class="comment-actions">
+                    <button class="reply-btn">Répondre</button>
+                    <button class="like-btn">J'aime (0)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton pour charger plus de commentaires -->
+        <button class="load-more">Afficher plus de commentaires</button>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Mon Blog. Tous droits réservés.</p>
+</footer>
+<!--
+<script>
+    // Script pour gérer l'ajout de commentaires
+    document.addEventListener('DOMContentLoaded', function() {
+        // Référence au formulaire
+        const commentForm = document.getElementById('add-comment-form');
+
+        // Référence à la liste de commentaires
+        const commentsList = document.querySelector('.comments-list');
+
+        // Référence au compteur de commentaires
+        const commentCount = document.querySelector('.comment-count');
+
+        // Référence au bouton de commentaires
+        const commentsBtn = document.getElementById('comments-btn');
+
+        // Scroll vers les commentaires quand on clique sur le bouton
+        commentsBtn.addEventListener('click', function() {
+            document.getElementById('comments').scrollIntoView({ behavior: 'smooth' });
+        });
+
+
+        // Gestionnaire d'événement pour la soumission du formulaire
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Récupération des valeurs du formulaire
+            const name = document.getElementById('comment-name').value;
+            const email = document.getElementById('comment-email').value;
+            const content = document.getElementById('comment-content').value;
+
+
+            // Ajout du commentaire au début de la liste
+            commentsList.insertBefore(newComment, commentsList.firstChild);
+
+            // Mise à jour du compteur de commentaires
+            const currentCount = parseInt(commentCount.textContent);
+            commentCount.textContent = currentCount + 1;
+            commentsBtn.textContent = `Commentaires (${currentCount + 1})`;
+
+            // Réinitialisation du formulaire
+            commentForm.reset();
+
+            // Confirmation
+            alert('Votre commentaire a été publié avec succès !');
+        });
+
+        // Gestion des boutons "Répondre"
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('reply-btn')) {
+                const comment = e.target.closest('.comment');
+                const author = comment.querySelector('.comment-author').textContent;
+
+                // Création du formulaire de réponse s'il n'existe pas déjà
+                if (!comment.querySelector('.reply-form')) {
+                    const replyForm = document.createElement('div');
+                    replyForm.className = 'reply-form';
+                    replyForm.innerHTML = `
+                        <form class="comment-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nom</label>
+                                    <input type="text" class="form-control" placeholder="Votre nom" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" placeholder="Votre email (ne sera pas publié)" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Réponse à ${author}</label>
+                                <textarea class="form-control" placeholder="Votre réponse..." required></textarea>
+                            </div>
+                            <button type="submit" class="button">Publier la réponse</button>
+                            <button type="button" class="button" style="background-color: #7f8c8d; margin-left: 10px;">Annuler</button>
+                        </form>
+                    `;
+
+                    // Ajout du formulaire après les actions du commentaire
+                    comment.querySelector('.comment-actions').after(replyForm);
+
+                    // Focus sur le champ de texte
+                    replyForm.querySelector('textarea').focus();
+
+                    // Gestion du bouton d'annulation
+                    replyForm.querySelector('button[type="button"]').addEventListener('click', function() {
+                        replyForm.remove();
+                    });
+
+                    // Gestion de la soumission de la réponse
+                    replyForm.querySelector('form').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const name = this.querySelector('input[type="text"]').value;
+                        const content = this.querySelector('textarea').value;
+
+                        // Vérifier si un conteneur de réponses existe déjà
+                        let replies = comment.querySelector('.replies');
+                        if (!replies) {
+                            replies = document.createElement('div');
+                            replies.className = 'replies';
+                            comment.appendChild(replies);
+                        }
+
+                        // Création de la réponse
+                        const newReply = document.createElement('div');
+                        newReply.className = 'comment';
+                        newReply.innerHTML = `
+                            <div class="comment-header">
+                                <span class="comment-author">${name}</span>
+                                <span class="comment-date">${formatDate()}</span>
+                            </div>
+                            <div class="comment-content">
+                                <p>${content}</p>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="reply-btn">Répondre</button>
+                                <button class="like-btn">J'aime (0)</button>
+                            </div>
+                        `;
+
+                        // Ajout de la réponse
+                        replies.appendChild(newReply);
+
+                        // Suppression du formulaire
+                        replyForm.remove();
+
+                        // Mise à jour du compteur de commentaires
+                        const currentCount = parseInt(commentCount.textContent);
+                        commentCount.textContent = currentCount + 1;
+                        commentsBtn.textContent = `Commentaires (${currentCount + 1})`;
+                    });
+                }
+            }
+        });
+
+        // Gestion des boutons "J'aime"
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('like-btn')) {
+                // Extraction du nombre actuel de likes
+                const likeText = e.target.textContent;
+                const likeCount = parseInt(likeText.match(/\d+/)[0]);
+
+                // Mise à jour du texte avec un like de plus
+                e.target.textContent = `J'aime (${likeCount + 1})`;
+
+                // Effet visuel pour le bouton
+                e.target.style.color = '#3498db';
+                setTimeout(() => {
+                    e.target.style.color = '';
+                }, 1000);
+            }
+        });
+</script>
+-->
+</body>
+</html>

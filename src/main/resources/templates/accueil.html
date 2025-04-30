@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${blogTitle}">My Awesome Blog</title>
+    <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Header Section -->
+<header class="site-header">
+    <div class="container">
+        <div class="logo">
+            <a href="/" th:href="@{/}">
+                <h1 th:text="${blogTitle}">My Awesome Blog</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/" th:href="@{/}" class="active">Home</a></li>
+                <li><a href="/categories" th:href="@{/categories}">Categories</a></li>
+                <li><a href="/about" th:href="@{/about}">About</a></li>
+                <li><a href="/contact" th:href="@{/contact}">Contact</a></li>
+                <li th:if="${#authentication.isAuthenticated()}">
+                    <a href="/dashboard" th:href="@{/dashboard}">Dashboard</a>
+                </li>
+                <li th:if="${not #authentication.isAuthenticated()}">
+                    <a href="/login" th:href="@{/login}" class="login-btn">Login</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h2 th:text="${heroTitle}">Welcome to My Blog</h2>
+            <p th:text="${heroDescription}">Exploring topics that matter with insightful content and thoughtful analysis.</p>
+            <div class="search-bar">
+                <form action="/search" th:action="@{/search}" method="GET">
+                    <input type="text" name="query" placeholder="Search for articles...">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Posts Section -->
+<section class="featured-posts">
+    <div class="container">
+        <h2 class="section-title">Featured Posts</h2>
+        <div class="posts-grid">
+            <!-- Loop through featured posts -->
+            <div class="post-card" th:each="post : ${featuredPosts}">
+                <div class="post-content">
+                    <div class="post-meta">
+                        <span class="author" th:text="${post.user.name}">Author Name</span>
+                        <span class="author" th:text="${post.user.lname}">Author Name</span>
+                    </div>
+                    <div>
+                        <p th:text="${post.content}"></p>
+                    </div>
+                </div>
+            </div>
+            <!-- Fallback display if no posts are available -->
+            <div th:if="${#lists.isEmpty(featuredPosts)}" class="no-posts">
+                <p>No featured posts available at the moment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Posts Section -->
+<section class="latest-posts">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Latest Articles</h2>
+            <a href="/all-posts" th:href="@{/all-posts}" class="view-all">View All</a>
+        </div>
+        <div class="posts-list">
+            <!-- Loop through latest posts -->
+            <article class="post-item" th:each="post : ${latestPosts}">
+                <div class="post-image">
+                    <a th:href="@{'/posts/' + ${post.url}}">
+                        <img th:src="${post.coverImage}" th:alt="${post.title}" src="https://via.placeholder.com/300x200" alt="Post Image">
+                    </a>
+                </div>
+                <div class="post-content">
+                    <div class="post-category">
+                        <span th:text="${post.category.name}">Category</span>
+                    </div>
+                    <h3 class="post-title">
+                        <a th:href="@{'/posts/' + ${post.url}}" th:text="${post.title}">Post Title Goes Here</a>
+                    </h3>
+                    <p class="post-excerpt" th:text="${#strings.abbreviate(post.excerpt, 160)}">This is a short excerpt from the blog post that gives readers a glimpse of what the article is about...</p>
+                    <div class="post-meta">
+                        <span class="author" th:text="${post.author.name}">Author Name</span>
+                        <span class="date" th:text="${#temporals.format(post.publishedAt, 'MMM d, yyyy')}">Jun 12, 2023</span>
+                        <span class="read-time" th:text="${post.readTime + ' min read'}">5 min read</span>
+                    </div>
+                </div>
+            </article>
+            <!-- Fallback display if no posts are available -->
+            <div th:if="${#lists.isEmpty(latestPosts)}" class="no-posts">
+                <p>No posts available at the moment.</p>
+            </div>
+        </div>
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 1}" th:href="@{/(page=${currentPage - 1})}" class="prev">&laquo; Previous</a>
+            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                    <a th:if="${i != currentPage}" th:href="@{/(page=${i})}" th:text="${i}">1</a>
+                    <span th:if="${i == currentPage}" class="current" th:text="${i}">1</span>
+                </span>
+            <a th:if="${currentPage < totalPages}" th:href="@{/(page=${currentPage + 1})}" class="next">Next &raquo;</a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <h2 class="section-title">Browse By Category</h2>
+        <div class="categories-grid">
+            <!-- Loop through categories -->
+            <div class="category-card" th:each="category : ${categories}">
+                <a th:href="@{'/category/' + ${category.slug}}">
+                    <div class="category-icon" th:if="${category.icon}">
+                        <i th:class="${category.icon}"></i>
+                    </div>
+                    <h3 th:text="${category.name}">Category Name</h3>
+                    <p th:text="${category.postCount + ' Articles'}">15 Articles</p>
+                </a>
+            </div>
+            <!-- Fallback display if no categories are available -->
+            <div th:if="${#lists.isEmpty(categories)}" class="no-categories">
+                <p>No categories available at the moment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <h2 th:text="${newsletterTitle}">Subscribe to Our Newsletter</h2>
+            <p th:text="${newsletterDescription}">Get the latest posts delivered right to your inbox.</p>
+            <form th:action="@{/subscribe}" method="POST" class="newsletter-form">
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your email address" required>
+                    <button type="submit">Subscribe</button>
+                </div>
+                <div class="form-info">
+                    <small>We respect your privacy. Unsubscribe at any time.</small>
+                </div>
+                <!-- Success message -->
+                <div class="success-message" th:if="${subscribeSuccess}">
+                    <p th:text="${subscribeMessage}">Thanks for subscribing!</p>
+                </div>
+                <!-- Error message -->
+                <div class="error-message" th:if="${subscribeError}">
+                    <p th:text="${subscribeMessage}">Subscription failed. Please try again.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2 th:text="${blogTitle}">My Awesome Blog</h2>
+                <p th:text="${footerDescription}">Sharing thoughts, ideas, and insights on topics that matter.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/" th:href="@{/}">Home</a></li>
+                        <li><a href="/about" th:href="@{/about}">About</a></li>
+                        <li><a href="/contact" th:href="@{/contact}">Contact</a></li>
+                        <li><a href="/privacy-policy" th:href="@{/privacy-policy}">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="link-column">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li th:each="category : ${footerCategories}">
+                            <a th:href="@{'/category/' + ${category.slug}}" th:text="${category.name}">Category</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="link-column">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#" th:href="${socialLinks.twitter}" th:if="${socialLinks?.twitter}" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" th:href="${socialLinks.facebook}" th:if="${socialLinks?.facebook}" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" th:href="${socialLinks.instagram}" th:if="${socialLinks?.instagram}" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" th:href="${socialLinks.linkedin}" th:if="${socialLinks?.linkedin}" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p th:text="${'© ' + #dates.format(#dates.createNow(), 'yyyy') + ' ' + blogTitle + '. All rights reserved.'}">© 2023 My Awesome Blog. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="/js/main.js" th:src="@{/js/main.js}"></script>
+<!-- Font Awesome for icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+</body>
+</html>

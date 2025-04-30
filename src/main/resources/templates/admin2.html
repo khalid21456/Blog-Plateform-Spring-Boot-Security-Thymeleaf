@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        body{
+            height:1500px;
+        }
+        .user-form {
+            margin-bottom: 30px;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .btn-action {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="header bg-dark">
+    <div class="container">
+        <h1 class="text-center" style="color:white">Admin Dashboard</h1>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Formulaire d'ajout d'utilisateur -->
+    <div class="card user-form">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Ajouter un utilisateur</h5>
+        </div>
+        <div class="card-body">
+            <form id="userForm" th:action="@{/admin/add}" th:object="${userr}" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" th:field="*{lname}" class="form-control" id="nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" th:field="*{name}" class="form-control" id="prenom" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" th:field="*{email}" class="form-control" id="email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="text" th:field="*{password}" class="form-control" id="password" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="adresse" class="form-label">Adresse</label>
+                        <input type="text" th:field="*{adress}" class="form-control" id="adresse" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="tel" class="form-label">Téléphone</label>
+                        <input type="text" th:field="*{tel}" class="form-control" id="tel" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="roles" class="form-label">Role</label>
+                        <select th:field="*{role}" id="roles" class="form-select" aria-label="Default select example">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Ajouter l'utilisateur
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div class="card table-container">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Liste des Utilisateurs</h5>
+        </div>
+        <div class="card-body">
+            <!-- Barre de recherche -->
+            <div class="search-box">
+                <div class="input-group">
+                    <input type="text" id="searchInputUsers" class="form-control" placeholder="Rechercher un utilisateur...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tableau des utilisateurs -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom complet</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.id}"></td>
+                            <td th:text="${user.name}+' '+${user.lname}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.role}"></td>
+                            <td>En Ligne</td>
+                            <td>
+                                <form th:action="@{/admin/deleteUser/{idUser}(idUser=${user.id})}" method="get">
+                                    <button class="btn btn-sm btn-danger btn-action delete-user">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="card table-container">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Liste des Articles</h5>
+            </div>
+            <div class="card-body">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" id="searchInputPost" class="form-control" placeholder="Rechercher un utilisateur...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            <!-- Tableau des articles -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Auteur</th>
+                        <th>Extrait</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="postsTableBody">
+                    <tr th:each="post : ${posts}">
+                        <td th:text="${post.id}"></td>
+                        <td th:text="${post.title}"></td>
+                        <td th:text="${post.user.name}+' '+${post.user.lname}"></td>
+                        <td th:text="${post.extrait}"></td>
+                        <td>
+                            <form th:action="@{/admin/deleteArticle/{idPost}(idPost=${post.id})}" method="get">
+                                <button class="btn btn-sm btn-danger btn-action delete-user" data-id="${user.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+        </div>
+
+</div>
+
+<!-- Modal pour confirmer la suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap & jQuery JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+        // Ajouter les événements pour les boutons de suppression
+        document.querySelectorAll('.delete-user').forEach(button => {
+            button.addEventListener('click', function() {
+                userIdToDelete = this.getAttribute('data-id');
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            });
+        });
+
+        // Ajouter les événements pour les boutons de modification (fonctionnalité à implémenter)
+        document.querySelectorAll('.edit-user').forEach(button => {
+            button.addEventListener('click', function() {
+                // Logique d'édition à implémenter
+                alert('Fonctionnalité de modification à venir.');
+            });
+        });
+    }
+
+    // Traduire les rôles en français
+    function translateRole(role) {
+        switch(role) {
+            case 'admin': return 'Administrateur';
+            case 'user': return 'Utilisateur';
+            case 'guest': return 'Invité';
+            default: return role;
+        }
+    }
+
+    // Gestionnaire pour confirmer la suppression
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (userIdToDelete) {
+            users = users.filter(user => user.id != userIdToDelete);
+            displayUsers();
+            userIdToDelete = null;
+
+            // Fermer la modal
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            deleteModal.hide();
+
+            // Notification de succès
+            alert('Utilisateur supprimé avec succès!');
+        }
+    });
+
+    // Gestionnaire pour la recherche
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+
+        if (searchTerm.trim() === '') {
+            // Si le champ de recherche est vide, afficher tous les utilisateurs
+            displayUsers();
+        } else {
+            // Filtrer les utilisateurs
+            const filteredUsers = users.filter(user =>
+                user.username.toLowerCase().includes(searchTerm) ||
+                user.firstName.toLowerCase().includes(searchTerm) ||
+                user.lastName.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm)
+            );
+
+            // Afficher les résultats filtrés
+            const tableBody = document.getElementById('userTableBody');
+            tableBody.innerHTML = '';
+
+            filteredUsers.forEach(user => {
+                const statusClass = user.status === 'active' ? 'bg-success' : 'bg-danger';
+                const roleClass = user.role === 'admin' ? 'bg-primary' : (user.role === 'user' ? 'bg-info' : 'bg-warning');
+
+                const row = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.firstName} ${user.lastName}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge ${roleClass}">${translateRole(user.role)}</span></td>
+                        <td><span class="badge ${statusClass}">${user.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-action edit-user" data-id="${user.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action delete-user" data-id="${user.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+    });
+
+    // Afficher les utilisateurs au chargement de la page
+    document.addEventListener('DOMContentLoaded', displayUsers);
+</script>
+</body>
+</html>
