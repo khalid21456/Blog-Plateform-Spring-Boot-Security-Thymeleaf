@@ -18,12 +18,12 @@ public class Comment {
 
     public Comment() {}
 
-    @OneToOne
-    @JoinColumn(name = "post_id",unique = false)
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @OneToOne
-    @JoinColumn(name = "user_id",unique = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user_comment;
 
     public Long getId() {
